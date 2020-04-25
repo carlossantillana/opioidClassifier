@@ -16,7 +16,7 @@ class Welcome extends Component{
               <Input placeholder="Enter Drug Name" />
             </Item>
             <Button primary
-              onPress={() => this.props.checkDrug()}>
+              onPress={() => this.props.checkDrug({drugName: 'test'})}>
               <Text> Submit </Text>
             </Button>
           </Form>
@@ -27,7 +27,7 @@ class Welcome extends Component{
 }
 function mapStateToProps(state){
   return{
-    drugName : state.drugName
+    drugName : 'test'
   };
 }
 function matchDispatchToProps(dispatch){

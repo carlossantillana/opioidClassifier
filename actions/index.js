@@ -8,8 +8,9 @@ export function decrement(){
     type: "Decrement"
   };
 }
-export function checkDrug(){
+export function checkDrug(drugName){
   return{
-    type: "CheckDrug"
+    type: "CheckDrug",
+    payload: drugName
   };
 }

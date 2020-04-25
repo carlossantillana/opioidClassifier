@@ -1,19 +1,21 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { Component } from 'react';
+import { Router, Scene } from 'react-native-router-flux';
+import Welcome from './src/components/welcome.js';
+import CheckDrug from './src/components/checkDrug.js';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+export default class App extends Component{
+  render(){
+    return(
+      <Router hideNavBar= "true">
+        <Scene key="root">
+          <Scene key="Welcome" component={Welcome} title="Welcome" initial={true} />
+          <Scene
+            key="checkDrug"
+            component={CheckDrug}
+            title="Check Drug"
+          />
+        </Scene>
+      </Router>
+    );
+  }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

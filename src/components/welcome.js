@@ -7,16 +7,30 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 
 class Welcome extends Component{
+  constructor(props) {
+    super(props);
+    this.state = {
+        drugName: ''
+    };
+    this.handleChange = this.handleChange.bind(this)
+}
+  handleChange = e => {
+    this.setState({
+        drugName: e.nativeEvent.text
+    })
+}
   render(){
     return(
       <Container>
         <Content>
           <Form>
             <Item last >
-              <Input placeholder="Enter Drug Name" />
+              <Input placeholder="Enter Drug Name"
+              value={this.state.drugName}
+                onChange={this.handleChange}/>
             </Item>
             <Button primary
-              onPress={() => this.props.checkDrug({drugName: 'test'})}>
+              onPress={() => this.props.checkDrug(this.state.drugName)}>
               <Text> Submit </Text>
             </Button>
           </Form>
@@ -27,7 +41,7 @@ class Welcome extends Component{
 }
 function mapStateToProps(state){
   return{
-    drugName : 'test'
+    drugName : state.drugName
   };
 }
 function matchDispatchToProps(dispatch){

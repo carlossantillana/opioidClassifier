@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Router, Scene } from 'react-native-router-flux';
 import Welcome from './src/components/welcome.js';
-import IsOpioid from './src/components/isOpioid.js';
+import IsOpioid  from './src/components/isOpioid.js';
+import IsNotOpioid  from './src/components/isNotOpioid.js';
+
 import allReducers from './reducers/index.js';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
@@ -14,11 +16,19 @@ export default class App extends Component{
       <Router hideNavBar= "true">
         <Scene key="root">
           <Scene key="Welcome" component={Welcome} title="Welcome" initial={true} />
+
           <Scene
             key="isOpioid"
             component={IsOpioid}
             title="Is Opioid"
           />
+
+          <Scene
+            key="isNotOpioid"
+            component={IsNotOpioid}
+            title="Is Not Opioid"
+          />
+
         </Scene>
       </Router>
       </Provider>

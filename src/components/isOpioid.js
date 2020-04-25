@@ -4,15 +4,14 @@ import { Container, Content, Form, Item,
   Input, Button, Text } from 'native-base';
 import {Actions} from 'react-native-router-flux';
 
-const CheckDrug = () => {
+const IsOpioid = () => {
   return (
     <Container>
       <Content>
-        <Text>Not an Opioid</Text>
+        <Text>Is an Opioid</Text>
       </Content>
     </Container>
   );
 }
 
-
-export default CheckDrug;
+export default IsOpioid;

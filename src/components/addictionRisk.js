@@ -6,7 +6,7 @@ import InfoForm from './infoForm.js';
 import { Field, reduxForm } from 'redux-form';
 
 
-class IsOpioid extends Component{
+class AddictionRisk extends Component{
   constructor(props) {
     super(props);
     this.state = {
@@ -18,17 +18,15 @@ class IsOpioid extends Component{
   return (
     <Container>
       <Content>
-        <Text style={{
-        textAlign: 'center',
-        textTransform: 'capitalize',
-        fontSize: 20,
-        }} >
-        {this.props.drug} is an opioid</Text>
-        <InfoForm />
+      <Text style={{
+      textAlign: 'center',
+      textTransform: 'capitalize',
+      fontSize: 20,
+    }} >Your addiction risk is {Math.floor(Math.random() * Math.floor(10))} out of 10</Text>
       </Content>
     </Container>
   );
 }
 }
 
-export default IsOpioid
+export default AddictionRisk

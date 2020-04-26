@@ -4,3 +4,10 @@ export function checkDrug(drugName){
     payload: drugName
   };
 }
+
+export function checkAddiction(profile){
+  return{
+    type: "CheckAddiciton",
+    payload: profile
+  };
+}

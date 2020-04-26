@@ -21,9 +21,9 @@ export default function(state=INITIAL_STATE, action){
       let drug = action.payload
       drug = drug.toLowerCase();
       if (state.opioids.includes(drug)){
-        Actions.isOpioid()
+        Actions.isOpioid({drug: drug})
       } else{
-        Actions.isNotOpioid()
+        Actions.isNotOpioid({drug: drug})
       }
       state.drugName = action.payload
       return state;

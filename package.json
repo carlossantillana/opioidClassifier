@@ -13,6 +13,7 @@
     "@tensorflow-models/mobilenet": "^2.0.4",
     "@tensorflow/tfjs": "^1.7.3",
     "@tensorflow/tfjs-react-native": "^0.2.3",
+    "@use-expo/font": "^2.0.0",
     "add": "^2.0.6",
     "expo": "~37.0.3",
     "expo-camera": "^8.2.0",
@@ -28,10 +29,12 @@
     "react-native-reanimated": "^1.8.0",
     "react-native-router-flux": "^4.2.0",
     "react-native-screens": "^2.7.0",
+    "react-native-speedometer-chart": "^0.7.5",
     "react-native-web": "~0.11.7",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "redux-form": "^8.3.5",
+    "typeface-montserrat": "^0.0.75",
     "yarn": "^1.22.4"
   },
   "devDependencies": {

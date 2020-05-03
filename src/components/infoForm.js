@@ -17,6 +17,8 @@ class InfoForm extends Component {
       currentState: "",
       history: "",
       age: '',
+      gender: '',
+
     };
     this.handleChange = this.handleChange.bind(this)
 
@@ -37,39 +39,47 @@ class InfoForm extends Component {
             fontSize: 15,
             marginTop: 20,
             marginBottom: 10,
+          fontFamily: 'AppleSDGothicNeo-UltraLight',
           }} >
-          Questionare to analyze risk for addiction
+          Answer questionare to analyze risk for addiction
           </Text>
-          <Text>Enter City</Text>
+          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter City</Text>
           <Item>
-            <Input
+            <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
             value={this.state.city}
             onChange={(e) => {this.handleChange(e, 'city')}}/>
           </Item>
-          <Text>Enter State</Text>
+          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter State</Text>
           <Item>
-            <Input
+            <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
             value={this.state.currentState}
             onChange={(e) => {this.handleChange(e, 'currentState')}}/>
           </Item>
-          <Text>Enter Addiction History</Text>
+          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter Addiction History</Text>
           <Item>
-            <Input
+            <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
             value={this.state.history}
             onChange={(e) => {this.handleChange(e, 'history')}}/>
           </Item>
-          <Text>Enter Age</Text>
+          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter Age</Text>
           <Item>
-            <Input
+            <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
             value={this.state.age}
             onChange={(e) => {this.handleChange(e, 'age')}}/>
+          </Item>
+          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter Gender</Text>
+          <Item>
+            <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
+            value={this.state.gender}
+            onChange={(e) => {this.handleChange(e, 'gender')}}/>
           </Item>
           <Button block primary
           style={{
           marginTop: 15,
+          fontFamily: 'AppleSDGothicNeo-UltraLight'
           }}
         onPress={() => this.props.checkAddiction(this.state)}>
-            <Text>Submit</Text>
+            <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Submit</Text>
           </Button>
         </Content>
       </Container>
@@ -84,6 +94,8 @@ function mapStateToProps(state){
     currentState: state.currentState,
     history: state.history,
     age: state.age,
+    gender: state.gender,
+
   };
 }
 function matchDispatchToProps(dispatch){

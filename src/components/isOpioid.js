@@ -21,6 +21,7 @@ class IsOpioid extends Component{
         <Text style={{
         textAlign: 'center',
         textTransform: 'capitalize',
+        fontFamily: 'AppleSDGothicNeo-UltraLight',
         fontSize: 20,
         }} >
         {this.props.drug} is an opioid</Text>

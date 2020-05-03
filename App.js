@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { Router, Scene } from 'react-native-router-flux';
 import Welcome from './src/components/welcome.js';
 import IsOpioid  from './src/components/isOpioid.js';
@@ -15,18 +15,18 @@ export default class App extends Component{
       <Provider store={store}>
       <Router hideNavBar= "true">
         <Scene key="root">
-          <Scene key="Welcome" component={Welcome} title="Welcome" initial={true} />
+          <Scene key="Welcome" component={Welcome} title="Opioid Odds" initial={true} />
 
           <Scene
             key="isOpioid"
             component={IsOpioid}
-            title="Is Opioid"
+            title="Opioid Found"
           />
 
           <Scene
             key="isNotOpioid"
             component={IsNotOpioid}
-            title="Is Not Opioid"
+            title="Opioid Not Found"
           />
 
           <Scene

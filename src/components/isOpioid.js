@@ -4,6 +4,7 @@ import { Container, Content, Form, Item,
 import {Actions} from 'react-native-router-flux';
 import InfoForm from './infoForm.js';
 import { Field, reduxForm } from 'redux-form';
+import { ImageBackground } from 'react-native';
 
 
 class IsOpioid extends Component{
@@ -17,6 +18,8 @@ class IsOpioid extends Component{
   render(){
   return (
     <Container>
+    <ImageBackground style={{ width: '100%', height: '100%'}} source={require("../../assets/Capture4.jpg")}>
+
       <Content>
         <Text style={{
         textAlign: 'center',
@@ -27,6 +30,7 @@ class IsOpioid extends Component{
         {this.props.drug} is an opioid</Text>
         <InfoForm />
       </Content>
+      </ImageBackground>
     </Container>
   );
 }

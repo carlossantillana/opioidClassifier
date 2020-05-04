@@ -11,7 +11,8 @@ export default function(state=INITIAL_STATE, action){
   switch (action.type) {
     case "CheckAddiciton":
       state = action.payload;
-      Actions.addictionRisk()
+      let drug = action.payload.drugName
+      Actions.addictionRisk({drug: drug})
       return state;
         break;
   default:

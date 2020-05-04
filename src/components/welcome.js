@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { Container, Content, Form, Item,
   Input, Button, Text, Thumbnail } from 'native-base';
+  import { ImageBackground } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 import { checkDrug } from '../../actions/index.js';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import { vicodin } from '../imgs/vicodin.js'
+
 class Welcome extends Component{
   constructor(props) {
     super(props);
     this.state = {
-        drugName: ''
+        drugName: '',
     };
     this.handleChange = this.handleChange.bind(this)
 }
@@ -19,12 +20,15 @@ class Welcome extends Component{
         drugName: e.nativeEvent.text
     })
 }
+
   render(){
     return(
       <Container
       style={{  alignItems: "center", fontFamily: 'AppleSDGothicNeo-UltraLight' }}>
-        <Content style={{  marginTop: 50, flexDirection: 'row' }}>
-        <Thumbnail  style={{  marginLeft: 45}} large source={{uri: vicodin}} />
+      <ImageBackground style={{ width: '100%', height: '100%'}} source={require("../../assets/Capture4.jpg")}>
+        <Content style={{  marginTop: 50, flexDirection: 'row', alignSelf: 'center' }}>
+
+        <Thumbnail  style={{  marginLeft: 30, height: 125, width: 125}} large source={require("../../assets/morphine.png")}/>
           <Form>
             <Item style={{  marginTop: 15, minWidth: 150, fontFamily: 'AppleSDGothicNeo-UltraLight'}} last >
               <Input placeholder="Enter Drug Name"
@@ -39,6 +43,8 @@ class Welcome extends Component{
             </Button>
           </Form>
         </Content>
+        </ImageBackground>
+
       </Container>
     );
   }

@@ -32,11 +32,11 @@ class InfoForm extends Component {
 
   render(){
     return (
-      <Container>
-        <Content padder>
+        <Content padder style={{marginLeft: 20}}>
           <Text style={{
             textAlign: 'center',
             fontSize: 15,
+            marginLeft: -15,
             marginTop: 20,
             marginBottom: 10,
           fontFamily: 'AppleSDGothicNeo-UltraLight',
@@ -44,7 +44,7 @@ class InfoForm extends Component {
           Answer questionare to analyze risk for addiction
           </Text>
           <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter City</Text>
-          <Item>
+          <Item >
             <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
             value={this.state.city}
             onChange={(e) => {this.handleChange(e, 'city')}}/>
@@ -76,20 +76,20 @@ class InfoForm extends Component {
           <Button block primary
           style={{
           marginTop: 15,
+          width: '95%',
           fontFamily: 'AppleSDGothicNeo-UltraLight'
           }}
-        onPress={() => this.props.checkAddiction(this.state)}>
+        onPress={() => this.props.checkAddiction(this.props)}>
             <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Submit</Text>
           </Button>
         </Content>
-      </Container>
     )
   }
 }
 
 function mapStateToProps(state){
   return{
-    drugName: state.drugName,
+    drugName: state.isOpioid.drugName,
     city: state.city,
     currentState: state.currentState,
     history: state.history,

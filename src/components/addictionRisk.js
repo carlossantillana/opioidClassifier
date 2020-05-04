@@ -5,6 +5,7 @@ import {Actions} from 'react-native-router-flux';
 import InfoForm from './infoForm.js';
 import { Field, reduxForm } from 'redux-form';
 import Speedometer from 'react-native-speedometer-chart';
+import { ImageBackground, Linking } from 'react-native';
 
 class AddictionRisk extends Component{
   constructor(props) {
@@ -32,12 +33,15 @@ componentDidMount(prevProps) {
   render(){
   return (
     <Container style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: "center"}}>
+    <ImageBackground style={{ width: '100%', height: '100%'}} source={require("../../assets/Capture4.jpg")}>
+
       <Content>
-          <Speedometer style={{  alignItems: "center" }} value={this.state.risk}
+          <Speedometer style={{  marginTop: 60, alignItems: "center" }} value={this.state.risk}
           totalValue={10} internalColor={this.state.color}/>
           <Text style={{
           textAlign: 'center',
           textTransform: 'capitalize',
+          fontFamily: 'AppleSDGothicNeo-UltraLight',
           marginTop: 15,
           fontSize: 16,
         }} >Risk is {this.state.risk} out of 10</Text>
@@ -45,10 +49,16 @@ componentDidMount(prevProps) {
         <Text style={{
         textAlign: 'center',
         textTransform: 'capitalize',
+        fontFamily: 'AppleSDGothicNeo-UltraLight',
         marginTop: 20,
         fontSize: 16,
-      }} >Check out these links to find out more:</Text>
+        color: 'blue'
+      }}
+      onPress={() => Linking.openURL('https://www.webmd.com/search/search_results/default.aspx?query=' + this.props.drug)}
+      >Check out this link to find out more!</Text>
       </Content>
+      </ImageBackground>
+
     </Container>
   );
 }

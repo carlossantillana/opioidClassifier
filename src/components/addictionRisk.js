@@ -37,38 +37,41 @@ class AddictionRisk extends Component{
 
   return model;
 }
-
-async  getData() {
-  const carsDataReq = await Papa.parse("https://anonfile.com/Z8d727zdo9/finalCleanData_txt");
-  console.log(carsDataReq.data)
-  // const carsData = await carsDataReq.json();
-  // const cleaned = carsData.map(car => ({
-  //   mpg: car.Miles_per_Gallon,
-  //   horsepower: car.Horsepower,
-  // }))
-  // .filter(car => (car.mpg != null && car.horsepower != null));
-
-  return carsDataReq.data;
+ getData () {
+  return new Promise((resolve, reject) => {
+    Papa.parse("https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/finalCleanData.txt", {
+      header: true,
+      download: true,
+      complete (results, file) {
+        resolve(results.data)
+      },
+      error (err, file) {
+        reject(err)
+      }
+    })
+  })
 }
 
-async run ()  {
+  async run ()  {
   const model = this.createModel();
   tfvis.show.modelSummary({name: 'Model Summary'}, model);
   // Load and plot the original input data that we are going to train on.
+  console.log("before")
   const data = await this.getData();
-  const values = data.map(d => ({
-    x: d.horsepower,
-    y: d.mpg,
-  }));
-  tfvis.render.scatterplot(
-    {name: 'Horsepower v MPG'},
-    {values},
-    {
-      xLabel: 'Horsepower',
-      yLabel: 'MPG',
-      height: 300
-    }
-  );
+  console.log(data);
+  // const values = data.map(d => ({
+  //   x: d.horsepower,
+  //   y: d.mpg,
+  // }));
+  // tfvis.render.scatterplot(
+  //   {name: 'Horsepower v MPG'},
+  //   {values},
+  //   {
+  //     xLabel: 'Horsepower',
+  //     yLabel: 'MPG',
+  //     height: 300
+  //   }
+  // );
 // const tensorData = this.convertToTensor(data);
 // const {inputs, labels} = tensorData;
 //
@@ -186,8 +189,7 @@ async componentDidMount(prevProps) {
       this.setState({
     isTfReady: true,
   });
-  console.log("about to start running")
-  this.run()
+  await this.run()
 
   if(this.state.risk < 4){
   this.setState({

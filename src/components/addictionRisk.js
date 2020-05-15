@@ -9,6 +9,8 @@ import { ImageBackground, Linking } from 'react-native';
 // import '@tensorflow/tfjs-react-native';
 import * as tf from "@tensorflow/tfjs";
 import * as tfvis from "@tensorflow/tfjs-vis";
+// import { CSVReader } from 'react-papaparse'
+import Papa from 'papaparse';
 
 // import MLPerceptron from './mlp.js'
 
@@ -37,15 +39,16 @@ class AddictionRisk extends Component{
 }
 
 async  getData() {
-  const carsDataReq = await fetch('https://storage.googleapis.com/tfjs-tutorials/carsData.json');
-  const carsData = await carsDataReq.json();
-  const cleaned = carsData.map(car => ({
-    mpg: car.Miles_per_Gallon,
-    horsepower: car.Horsepower,
-  }))
-  .filter(car => (car.mpg != null && car.horsepower != null));
+  const carsDataReq = await Papa.parse("https://anonfile.com/Z8d727zdo9/finalCleanData_txt");
+  console.log(carsDataReq.data)
+  // const carsData = await carsDataReq.json();
+  // const cleaned = carsData.map(car => ({
+  //   mpg: car.Miles_per_Gallon,
+  //   horsepower: car.Horsepower,
+  // }))
+  // .filter(car => (car.mpg != null && car.horsepower != null));
 
-  return cleaned;
+  return carsDataReq.data;
 }
 
 async run ()  {
@@ -66,16 +69,16 @@ async run ()  {
       height: 300
     }
   );
-const tensorData = this.convertToTensor(data);
-const {inputs, labels} = tensorData;
-
-// Train the model
-console.log('start Training');
-await this.trainModel(model, inputs, labels);
-console.log('Done Training');
-
-this.testModel(model, data, tensorData)
-console.log('Done testing');
+// const tensorData = this.convertToTensor(data);
+// const {inputs, labels} = tensorData;
+//
+// // Train the model
+// console.log('start Training');
+// await this.trainModel(model, inputs, labels);
+// console.log('Done Training');
+//
+// this.testModel(model, data, tensorData)
+// console.log('Done testing');
 
 
 }
@@ -140,9 +143,7 @@ async  trainModel(model, inputs, labels) {
 testModel(model, inputData, normalizationData) {
   const {inputMax, inputMin, labelMin, labelMax} = normalizationData;
 
-  // Generate predictions for a uniform range of numbers between 0 and 1;
-  // We un-normalize the data by doing the inverse of the min-max scaling
-  // that we did earlier.
+
   const [xs, preds] = tf.tidy(() => {
 
     const xs = tf.linspace(0, 1, 100);

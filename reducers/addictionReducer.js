@@ -2,9 +2,8 @@ import {Actions} from 'react-native-router-flux';
 
 const INITIAL_STATE = {
   drugName: "",
-  city: "",
-  currentState: "",
-  history: "",
+  county: "",
+  gender: "",
   age: 0,
 };
 export default function(state=INITIAL_STATE, action){
@@ -12,7 +11,7 @@ export default function(state=INITIAL_STATE, action){
     case "CheckAddiciton":
       state = action.payload;
       let drug = action.payload.drugName
-      Actions.addictionRisk({drug: drug})
+      Actions.addictionRisk({drug: drug, age: action.payload.age, county: action.payload.county, gender: action.payload.gender})
       return state;
         break;
   default:

@@ -18,13 +18,28 @@ class AddictionRisk extends Component{
   constructor(props) {
     super(props);
     this.state = {
-        drugName: '',
-        risk: Math.floor(Math.random() * Math.floor(10)),
+        drugName: this.props.drugName,
+        risk: -10,
         color: 'green',
         isTfReady: false,
     };
 }
-
+oneHotEncoder(data, userProfile) {
+  let counties = new Set();
+  let countyMap = new Object();
+  data.forEach(function(d){
+    if (typeof d.county !== 'undefined'){
+      counties.add(d.county.toLowerCase());
+    }
+  });
+  let i = 0;
+  counties.forEach(function(d){
+    countyMap[d] = i++;
+  });
+  data.pop()
+  userProfile.county = countyMap[userProfile.county.toLowerCase()];
+  return data.map(d => ({sex: d.sex =="Males" ? 1 : 0, age: d.age, county: countyMap[d.county.toLowerCase()], rate: d.rate}))
+}
  createModel() {
   // Create a sequential model
   const model = tf.sequential();
@@ -42,6 +57,7 @@ class AddictionRisk extends Component{
     Papa.parse("https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/finalCleanData.txt", {
       header: true,
       download: true,
+      dynamicTyping: true,
       complete (results, file) {
         resolve(results.data)
       },
@@ -53,37 +69,39 @@ class AddictionRisk extends Component{
 }
 
   async run ()  {
+  let userProfile = {age: this.props.age, gender: this.props.gender, county:this.props.county}
+
   const model = this.createModel();
   tfvis.show.modelSummary({name: 'Model Summary'}, model);
   // Load and plot the original input data that we are going to train on.
-  console.log("before")
-  const data = await this.getData();
-  console.log(data);
-  // const values = data.map(d => ({
-  //   x: d.horsepower,
-  //   y: d.mpg,
-  // }));
-  // tfvis.render.scatterplot(
-  //   {name: 'Horsepower v MPG'},
-  //   {values},
-  //   {
-  //     xLabel: 'Horsepower',
-  //     yLabel: 'MPG',
-  //     height: 300
-  //   }
-  // );
-// const tensorData = this.convertToTensor(data);
-// const {inputs, labels} = tensorData;
-//
-// // Train the model
-// console.log('start Training');
-// await this.trainModel(model, inputs, labels);
-// console.log('Done Training');
-//
-// this.testModel(model, data, tensorData)
-// console.log('Done testing');
+  console.log("before");
+  let data = await this.getData();
+  data = this.oneHotEncoder(data, userProfile);
+  console.log(userProfile)
+  const values = data.map(d => ({
+    x: d.county,
+    y: d.rate,
+  }));
 
+  tfvis.render.scatterplot(
+    {name: 'County v Rate'},
+    {values},
+    {
+      xLabel: 'County',
+      yLabel: 'Rate',
+      height: 300
+    });
+const tensorData = this.convertToTensor(data);
+const {inputs, labels} = tensorData;
 
+// Train the model
+console.log('start Training');
+await this.trainModel(model, inputs, labels);
+console.log('Done Training');
+let risk = this.testModel(model, userProfile.county)
+console.log('Done testing');
+console.log(`risk: ${risk}`)
+return risk
 }
 
  convertToTensor(data) {
@@ -95,9 +113,8 @@ class AddictionRisk extends Component{
     tf.util.shuffle(data);
 
     // Step 2. Convert data to Tensor
-    const inputs = data.map(d => d.horsepower)
-    const labels = data.map(d => d.mpg);
-
+    const inputs = data.map(d => d.county)
+    const labels = data.map(d => d.rate);
     const inputTensor = tf.tensor2d(inputs, [inputs.length, 1]);
     const labelTensor = tf.tensor2d(labels, [labels.length, 1]);
 
@@ -107,12 +124,10 @@ class AddictionRisk extends Component{
     const labelMax = labelTensor.max();
     const labelMin = labelTensor.min();
 
-    const normalizedInputs = inputTensor.sub(inputMin).div(inputMax.sub(inputMin));
-    const normalizedLabels = labelTensor.sub(labelMin).div(labelMax.sub(labelMin));
 
     return {
-      inputs: normalizedInputs,
-      labels: normalizedLabels,
+      inputs: inputs,
+      labels: labels,
       // Return the min/max bounds so we can use them later.
       inputMax,
       inputMin,
@@ -130,11 +145,11 @@ async  trainModel(model, inputs, labels) {
   });
 
   const batchSize = 32;
-  const epochs = 50;
-
-  return await model.fit(inputs, labels, {
+  const epochs = 15;
+  return await model.fit(tf.stack(inputs), tf.stack(labels), {
     batchSize,
     epochs,
+    validationSplit: .25,
     shuffle: true,
     callbacks: tfvis.show.fitCallbacks(
       { name: 'Training Performance' },
@@ -143,45 +158,14 @@ async  trainModel(model, inputs, labels) {
     )
   });
 }
-testModel(model, inputData, normalizationData) {
-  const {inputMax, inputMin, labelMin, labelMax} = normalizationData;
-
-
-  const [xs, preds] = tf.tidy(() => {
-
-    const xs = tf.linspace(0, 1, 100);
-    const preds = model.predict(xs.reshape([100, 1]));
-
-    const unNormXs = xs
-      .mul(inputMax.sub(inputMin))
-      .add(inputMin);
-
-    const unNormPreds = preds
-      .mul(labelMax.sub(labelMin))
-      .add(labelMin);
-
-    // Un-normalize the data
-    return [unNormXs.dataSync(), unNormPreds.dataSync()];
+testModel(model, inputData) {
+  console.log(`inputData: ${inputData}`)
+  const preds = tf.tidy(() => {
+    const xs = tf.tensor1d([inputData])
+    const preds = model.predict(xs.reshape([1, 1]));
+    return preds.dataSync();
   });
-
-
-  const predictedPoints = Array.from(xs).map((val, i) => {
-    return {x: val, y: preds[i]}
-  });
-
-  const originalPoints = inputData.map(d => ({
-    x: d.horsepower, y: d.mpg,
-  }));
-
-  tfvis.render.scatterplot(
-    {name: 'Model Predictions vs Original Data'},
-    {values: [originalPoints, predictedPoints], series: ['original', 'predicted']},
-    {
-      xLabel: 'Horsepower',
-      yLabel: 'MPG',
-      height: 300
-    }
-  );
+  return preds;
 }
 
 async componentDidMount(prevProps) {
@@ -189,8 +173,10 @@ async componentDidMount(prevProps) {
       this.setState({
     isTfReady: true,
   });
-  await this.run()
-
+  let calcRisk = await this.run()
+this.setState({
+    risk: Math.round(calcRisk * 10)
+})
   if(this.state.risk < 4){
   this.setState({
       color: 'green'
@@ -208,20 +194,20 @@ async componentDidMount(prevProps) {
   render(){
   return (
     <Container style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: "center"}}>
-    <ImageBackground style={{ width: '100%', height: '100%'}} source={require("../../assets/Capture4.jpg")}>
+     <ImageBackground style={{ width: '100%', height: '100%'}} source={require("../../assets/Capture4.jpg")}>
 
       <Content>
-          <Speedometer style={{  marginTop: 60, alignItems: "center" }} value={this.state.risk}
-          totalValue={10} internalColor={this.state.color}/>
-          <Text style={{
+          { this.state.risk > -2 && <Speedometer style={{  marginTop: 60, alignItems: "center" }} value={this.state.risk}
+          totalValue={10} internalColor={this.state.color}/> }
+          { this.state.risk > -2 && <Text style={{
           textAlign: 'center',
           textTransform: 'capitalize',
           fontFamily: 'AppleSDGothicNeo-UltraLight',
           marginTop: 15,
           fontSize: 16,
-        }} >Risk is {this.state.risk} out of 10</Text>
+        }} >Risk is {this.state.risk} out of 10</Text> }
 
-        <Text style={{
+        { this.state.risk > -2 && <Text style={{
         textAlign: 'center',
         textTransform: 'capitalize',
         fontFamily: 'AppleSDGothicNeo-UltraLight',
@@ -230,7 +216,7 @@ async componentDidMount(prevProps) {
         color: 'blue'
       }}
       onPress={() => Linking.openURL('https://www.webmd.com/search/search_results/default.aspx?query=' + this.props.drug)}
-      >Check out this link to find out more!</Text>
+      >Check out this link to find out more!</Text>}
       </Content>
       </ImageBackground>
 

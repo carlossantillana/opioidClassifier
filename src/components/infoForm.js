@@ -13,9 +13,7 @@ class InfoForm extends Component {
     super(props);
     this.state={
       drugName: "",
-      city: "",
-      currentState: "",
-      history: "",
+      county: "",
       age: '',
       gender: '',
 
@@ -43,23 +41,11 @@ class InfoForm extends Component {
           }} >
           Answer questionare to analyze risk for addiction
           </Text>
-          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter City</Text>
+          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter County</Text>
           <Item >
             <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
-            value={this.state.city}
-            onChange={(e) => {this.handleChange(e, 'city')}}/>
-          </Item>
-          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter State</Text>
-          <Item>
-            <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
-            value={this.state.currentState}
-            onChange={(e) => {this.handleChange(e, 'currentState')}}/>
-          </Item>
-          <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter Addiction History</Text>
-          <Item>
-            <Input style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}}
-            value={this.state.history}
-            onChange={(e) => {this.handleChange(e, 'history')}}/>
+            value={this.state.county}
+            onChange={(e) => {this.handleChange(e, 'county')}}/>
           </Item>
           <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Enter Age</Text>
           <Item>
@@ -79,7 +65,7 @@ class InfoForm extends Component {
           width: '95%',
           fontFamily: 'AppleSDGothicNeo-UltraLight'
           }}
-        onPress={() => this.props.checkAddiction(this.props)}>
+        onPress={() => this.props.checkAddiction({drugName: this.props.drugName, county: this.state.county, age: this.state.age, gender: this.state.gender})}>
             <Text style={{fontFamily: 'AppleSDGothicNeo-UltraLight'}} >Submit</Text>
           </Button>
         </Content>
@@ -90,9 +76,7 @@ class InfoForm extends Component {
 function mapStateToProps(state){
   return{
     drugName: state.isOpioid.drugName,
-    city: state.city,
-    currentState: state.currentState,
-    history: state.history,
+    county: state.county,
     age: state.age,
     gender: state.gender,
 

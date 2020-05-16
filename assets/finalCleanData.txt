@@ -1,4 +1,4 @@
-,sex,Age,County,rate
+index,sex,age,county,rate
 0,Females,0,Alameda,0.07264264264264263
 1,Females,0,Alpine,0.001201201201201209
 2,Females,0,Amador,0.2726726726726727

@@ -45,7 +45,7 @@ oneHotEncoder(data, userProfile) {
   const model = tf.sequential();
 
   // Add a single input layer
-  model.add(tf.layers.dense({inputShape: [1], units: 1, useBias: true}));
+  model.add(tf.layers.dense({inputShape: [3], units: 1, useBias: true}));
 
   // Add an output layer
   model.add(tf.layers.dense({units: 1, useBias: true}));
@@ -69,7 +69,7 @@ oneHotEncoder(data, userProfile) {
 }
 
   async run ()  {
-  let userProfile = {age: this.props.age, gender: this.props.gender, county:this.props.county}
+  let userProfile = {age: this.props.age, gender: (this.props.gender  == "Male" || this.props.gender  == "male") ? 1 : 0, county:this.props.county}
 
   const model = this.createModel();
   tfvis.show.modelSummary({name: 'Model Summary'}, model);
@@ -79,18 +79,12 @@ oneHotEncoder(data, userProfile) {
   data = this.oneHotEncoder(data, userProfile);
   console.log(userProfile)
   const values = data.map(d => ({
-    x: d.county,
+    x1: d.county,
+    x2: d.sex,
+    x3: d.age,
     y: d.rate,
   }));
 
-  tfvis.render.scatterplot(
-    {name: 'County v Rate'},
-    {values},
-    {
-      xLabel: 'County',
-      yLabel: 'Rate',
-      height: 300
-    });
 const tensorData = this.convertToTensor(data);
 const {inputs, labels} = tensorData;
 
@@ -98,7 +92,7 @@ const {inputs, labels} = tensorData;
 console.log('start Training');
 await this.trainModel(model, inputs, labels);
 console.log('Done Training');
-let risk = this.testModel(model, userProfile.county)
+let risk = this.testModel(model, [userProfile.county, userProfile.gender, userProfile.age])
 console.log('Done testing');
 console.log(`risk: ${risk}`)
 return risk
@@ -113,9 +107,11 @@ return risk
     tf.util.shuffle(data);
 
     // Step 2. Convert data to Tensor
-    const inputs = data.map(d => d.county)
+    const inputs = data.map(d => [d.county, d.sex,d.age])
+
     const labels = data.map(d => d.rate);
-    const inputTensor = tf.tensor2d(inputs, [inputs.length, 1]);
+    console.log(inputs)
+    const inputTensor = tf.tensor2d(inputs, [inputs.length, 3]);
     const labelTensor = tf.tensor2d(labels, [labels.length, 1]);
 
     //Step 3. Normalize the data to the range 0 - 1 using min-max scaling
@@ -161,8 +157,8 @@ async  trainModel(model, inputs, labels) {
 testModel(model, inputData) {
   console.log(`inputData: ${inputData}`)
   const preds = tf.tidy(() => {
-    const xs = tf.tensor1d([inputData])
-    const preds = model.predict(xs.reshape([1, 1]));
+    const xs = tf.tensor2d(inputData, [1,3])
+    const preds = model.predict(xs);
     return preds.dataSync();
   });
   return preds;

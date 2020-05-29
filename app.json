@@ -4,7 +4,6 @@
     "slug": "opioid",
     "platforms": [
       "ios",
-      "android",
       "web"
     ],
     "version": "1.0.0",
@@ -22,7 +21,9 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.carlos.opioidOdds",
+      "buildNumber": "1.0.0"
     }
   }
 }

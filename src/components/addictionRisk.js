@@ -6,7 +6,8 @@ import InfoForm from './infoForm.js';
 import { Field, reduxForm } from 'redux-form';
 import Speedometer from 'react-native-speedometer-chart';
 import { ImageBackground, Linking } from 'react-native';
-import * as tf from "@tensorflow/tfjs";
+import * as tf from "@tensorflow/tfjs"
+import { fetch } from '@tensorflow/tfjs-react-native'
 // import * as tfvis from "@tensorflow/tfjs-vis";
 import Papa from 'papaparse';
 
@@ -68,27 +69,25 @@ oneHotEncoder(data, userProfile) {
   async run ()  {
   let userProfile = {age: this.props.age, gender: (this.props.gender  == "Male" || this.props.gender  == "male") ? 1 : 0, county:this.props.county}
 
-  // const model = this.createModel();
-  // tfvis.show.modelSummary({name: 'Model Summary'}, model);
+  // const model = await this.createModel();
   let data = await this.getData();
   data = this.oneHotEncoder(data, userProfile);
-//   console.log(userProfile)
-//   const values = data.map(d => ({
-//     x1: d.county,
-//     x2: d.sex,
-//     x3: d.age,
-//     y: d.rate,
-//   }));
-//
-// const tensorData = this.convertToTensor(data);
-// const {inputs, labels} = tensorData;
+  const values = data.map(d => ({
+    x1: d.county,
+    x2: d.sex,
+    x3: d.age,
+    y: d.rate,
+  }));
+const tensorData = this.convertToTensor(data);
+const {inputs, labels} = tensorData;
 //
 // // Train the model
 // console.log('start Training');
 // await this.trainModel(model, inputs, labels);
+
+//Browser
 // await model.save('downloads://opioid-model');
 const model = await tf.loadLayersModel('https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/opioid-model.json');
-
 let risk = this.testModel(model, [userProfile.county, userProfile.gender, userProfile.age])
 console.log(`risk: ${risk}`)
 return risk
@@ -136,17 +135,12 @@ async  trainModel(model, inputs, labels) {
   });
 
   const batchSize = 32;
-  const epochs = 50;
+  const epochs = 10;
   return await model.fit(tf.stack(inputs), tf.stack(labels), {
     batchSize,
     epochs,
     validationSplit: .25,
     shuffle: true,
-    // callbacks: tfvis.show.fitCallbacks(
-    //   { name: 'Training Performance' },
-    //   ['loss', 'mse'],
-    //   { height: 200, callbacks: ['onEpochEnd'] }
-    // )
   });
 }
 testModel(model, inputData) {

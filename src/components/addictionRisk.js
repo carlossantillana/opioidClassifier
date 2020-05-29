@@ -6,13 +6,10 @@ import InfoForm from './infoForm.js';
 import { Field, reduxForm } from 'redux-form';
 import Speedometer from 'react-native-speedometer-chart';
 import { ImageBackground, Linking } from 'react-native';
-// import '@tensorflow/tfjs-react-native';
 import * as tf from "@tensorflow/tfjs";
-import * as tfvis from "@tensorflow/tfjs-vis";
-// import { CSVReader } from 'react-papaparse'
+// import * as tfvis from "@tensorflow/tfjs-vis";
 import Papa from 'papaparse';
 
-// import MLPerceptron from './mlp.js'
 
 class AddictionRisk extends Component{
   constructor(props) {
@@ -71,29 +68,28 @@ oneHotEncoder(data, userProfile) {
   async run ()  {
   let userProfile = {age: this.props.age, gender: (this.props.gender  == "Male" || this.props.gender  == "male") ? 1 : 0, county:this.props.county}
 
-  const model = this.createModel();
-  tfvis.show.modelSummary({name: 'Model Summary'}, model);
-  // Load and plot the original input data that we are going to train on.
-  console.log("before");
+  // const model = this.createModel();
+  // tfvis.show.modelSummary({name: 'Model Summary'}, model);
   let data = await this.getData();
   data = this.oneHotEncoder(data, userProfile);
-  console.log(userProfile)
-  const values = data.map(d => ({
-    x1: d.county,
-    x2: d.sex,
-    x3: d.age,
-    y: d.rate,
-  }));
+//   console.log(userProfile)
+//   const values = data.map(d => ({
+//     x1: d.county,
+//     x2: d.sex,
+//     x3: d.age,
+//     y: d.rate,
+//   }));
+//
+// const tensorData = this.convertToTensor(data);
+// const {inputs, labels} = tensorData;
+//
+// // Train the model
+// console.log('start Training');
+// await this.trainModel(model, inputs, labels);
+// await model.save('downloads://opioid-model');
+const model = await tf.loadLayersModel('https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/opioid-model.json');
 
-const tensorData = this.convertToTensor(data);
-const {inputs, labels} = tensorData;
-
-// Train the model
-console.log('start Training');
-await this.trainModel(model, inputs, labels);
-console.log('Done Training');
 let risk = this.testModel(model, [userProfile.county, userProfile.gender, userProfile.age])
-console.log('Done testing');
 console.log(`risk: ${risk}`)
 return risk
 }
@@ -110,7 +106,6 @@ return risk
     const inputs = data.map(d => [d.county, d.sex,d.age])
 
     const labels = data.map(d => d.rate);
-    console.log(inputs)
     const inputTensor = tf.tensor2d(inputs, [inputs.length, 3]);
     const labelTensor = tf.tensor2d(labels, [labels.length, 1]);
 
@@ -141,17 +136,17 @@ async  trainModel(model, inputs, labels) {
   });
 
   const batchSize = 32;
-  const epochs = 15;
+  const epochs = 50;
   return await model.fit(tf.stack(inputs), tf.stack(labels), {
     batchSize,
     epochs,
     validationSplit: .25,
     shuffle: true,
-    callbacks: tfvis.show.fitCallbacks(
-      { name: 'Training Performance' },
-      ['loss', 'mse'],
-      { height: 200, callbacks: ['onEpochEnd'] }
-    )
+    // callbacks: tfvis.show.fitCallbacks(
+    //   { name: 'Training Performance' },
+    //   ['loss', 'mse'],
+    //   { height: 200, callbacks: ['onEpochEnd'] }
+    // )
   });
 }
 testModel(model, inputData) {

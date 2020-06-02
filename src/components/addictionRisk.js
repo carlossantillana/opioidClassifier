@@ -7,7 +7,7 @@ import { Field, reduxForm } from 'redux-form';
 import Speedometer from 'react-native-speedometer-chart';
 import { ImageBackground, Linking } from 'react-native';
 import * as tf from "@tensorflow/tfjs"
-// import { fetch } from '@tensorflow/tfjs-react-native'
+import { fetch } from '@tensorflow/tfjs-react-native'
 // import * as tfvis from "@tensorflow/tfjs-vis";
 import Papa from 'papaparse';
 
@@ -88,18 +88,21 @@ const {inputs, labels, cleanUser} = tensorData;
 // await model.save('downloads://opioid-model');
 const model = await tf.loadLayersModel('https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/opioid-model.json');
 let risk = this.testModel(model, cleanUser)
+
 risk = this.norm(risk)
-console.log(`risk: ${risk}`)
+if (risk > 1){
+  risk = 1
+}
 return risk
 }
 
 norm(risk){
-  if (risk <= 2.0){
+  if (risk <= 0.2){
     risk *= 1.3
-  } else if (risk <= 3.0){
-    risk  *= 2
+  } else if (risk <= 0.3){
+    risk  *= 1.6
   } else {
-    risk *= 3
+    risk *= 2.1
   }
   return risk
 }

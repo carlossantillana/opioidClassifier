@@ -69,7 +69,7 @@ oneHotEncoder(data, userProfile) {
   async run ()  {
   let userProfile = {age: this.props.age, gender: (this.props.gender  == "Male" || this.props.gender  == "male") ? 1 : 0, county:this.props.county}
 
-  const model = await this.createModel();
+  // const model = await this.createModel();
   let data = await this.getData();
   data = this.oneHotEncoder(data, userProfile);
   const values = data.map(d => ({
@@ -81,17 +81,28 @@ oneHotEncoder(data, userProfile) {
 const tensorData = this.convertToTensor(data, userProfile);
 const {inputs, labels, cleanUser} = tensorData;
 // // Train the model
-console.log('start Training');
-await this.trainModel(model, inputs, labels);
+// console.log('start Training');
+// await this.trainModel(model, inputs, labels);
 
 //Browser
 // await model.save('downloads://opioid-model');
-// const model = await tf.loadLayersModel('https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/opioid-model.json');
+const model = await tf.loadLayersModel('https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/opioid-model.json');
 let risk = this.testModel(model, cleanUser)
+risk = this.norm(risk)
 console.log(`risk: ${risk}`)
 return risk
 }
 
+norm(risk){
+  if (risk <= 2.0){
+    risk *= 1.3
+  } else if (risk <= 3.0){
+    risk  *= 2
+  } else {
+    risk *= 3
+  }
+  return risk
+}
  convertToTensor(data, userProfile) {
   // Wrapping these calculations in a tidy will dispose any
   // intermediate tensors.
@@ -156,7 +167,7 @@ async  trainModel(model, inputs, labels) {
   });
 
   const batchSize = 32;
-  const epochs = 17;
+  const epochs = 55;
   return await model.fit(inputs, labels, {
     batchSize,
     epochs,

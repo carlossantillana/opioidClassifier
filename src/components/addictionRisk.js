@@ -7,7 +7,7 @@ import { Field, reduxForm } from 'redux-form';
 import Speedometer from 'react-native-speedometer-chart';
 import { ImageBackground, Linking } from 'react-native';
 import * as tf from "@tensorflow/tfjs"
-import { fetch } from '@tensorflow/tfjs-react-native'
+// import { fetch } from '@tensorflow/tfjs-react-native'
 // import * as tfvis from "@tensorflow/tfjs-vis";
 import Papa from 'papaparse';
 
@@ -43,7 +43,7 @@ oneHotEncoder(data, userProfile) {
   const model = tf.sequential();
 
   // Add a single input layer
-  model.add(tf.layers.dense({inputShape: [3], units: 1, useBias: true}));
+  model.add(tf.layers.dense({inputShape: [148], units: 1, activation: 'relu', useBias: true}));
 
   // Add an output layer
   model.add(tf.layers.dense({units: 1, useBias: true}));
@@ -69,7 +69,7 @@ oneHotEncoder(data, userProfile) {
   async run ()  {
   let userProfile = {age: this.props.age, gender: (this.props.gender  == "Male" || this.props.gender  == "male") ? 1 : 0, county:this.props.county}
 
-  // const model = await this.createModel();
+  const model = await this.createModel();
   let data = await this.getData();
   data = this.oneHotEncoder(data, userProfile);
   const values = data.map(d => ({
@@ -78,22 +78,21 @@ oneHotEncoder(data, userProfile) {
     x3: d.age,
     y: d.rate,
   }));
-const tensorData = this.convertToTensor(data);
-const {inputs, labels} = tensorData;
-//
+const tensorData = this.convertToTensor(data, userProfile);
+const {inputs, labels, cleanUser} = tensorData;
 // // Train the model
-// console.log('start Training');
-// await this.trainModel(model, inputs, labels);
+console.log('start Training');
+await this.trainModel(model, inputs, labels);
 
 //Browser
 // await model.save('downloads://opioid-model');
-const model = await tf.loadLayersModel('https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/opioid-model.json');
-let risk = this.testModel(model, [userProfile.county, userProfile.gender, userProfile.age])
+// const model = await tf.loadLayersModel('https://raw.githubusercontent.com/carlossantillana/opioidClassifier/master/assets/opioid-model.json');
+let risk = this.testModel(model, cleanUser)
 console.log(`risk: ${risk}`)
 return risk
 }
 
- convertToTensor(data) {
+ convertToTensor(data, userProfile) {
   // Wrapping these calculations in a tidy will dispose any
   // intermediate tensors.
 
@@ -103,10 +102,31 @@ return risk
 
     // Step 2. Convert data to Tensor
     const inputs = data.map(d => [d.county, d.sex,d.age])
+    let county = data.map(d => d.county);
+    let gender = data.map(d => d.sex);
+    let age = data.map(d => d.age);
+    county = tf.tensor1d(county, 'int32');
+    county = tf.oneHot(county, 60);
+    gender = tf.tensor1d(gender, 'int32');
+    gender = tf.oneHot(gender, 2);
+    age = tf.tensor1d(age, 'int32');
+    age = tf.oneHot(age, 86);
 
+    let userCounty = userProfile.county;
+    let userGender = userProfile.sex;
+    let userAge = userProfile.age;
+    userCounty = tf.tensor1d([userCounty], 'int32');
+    userCounty = tf.oneHot(userCounty, 60);
+    userGender = tf.tensor1d([userGender], 'int32');
+    userGender = tf.oneHot(userGender, 2);
+    userAge = tf.tensor1d([userAge], 'int32');
+    userAge = tf.oneHot(userAge, 86);
+
+    const user = tf.concat([userCounty.flatten(), userGender.flatten(), userAge.flatten()],0)
+    user.print()
     const labels = data.map(d => d.rate);
-    const inputTensor = tf.tensor2d(inputs, [inputs.length, 3]);
-    const labelTensor = tf.tensor2d(labels, [labels.length, 1]);
+    const inputTensor = tf.concat([county, gender, age],1)
+    const labelTensor = tf.tensor1d(labels);
 
     //Step 3. Normalize the data to the range 0 - 1 using min-max scaling
     const inputMax = inputTensor.max();
@@ -116,13 +136,14 @@ return risk
 
 
     return {
-      inputs: inputs,
-      labels: labels,
+      inputs: inputTensor,
+      labels: labelTensor,
       // Return the min/max bounds so we can use them later.
       inputMax,
       inputMin,
       labelMax,
       labelMin,
+      cleanUser : user,
     }
   });
 }
@@ -135,18 +156,19 @@ async  trainModel(model, inputs, labels) {
   });
 
   const batchSize = 32;
-  const epochs = 10;
-  return await model.fit(tf.stack(inputs), tf.stack(labels), {
+  const epochs = 17;
+  return await model.fit(inputs, labels, {
     batchSize,
     epochs,
-    validationSplit: .25,
+    validationSplit: .15,
     shuffle: true,
   });
 }
 testModel(model, inputData) {
-  console.log(`inputData: ${inputData}`)
+  inputData.print(true)
   const preds = tf.tidy(() => {
-    const xs = tf.tensor2d(inputData, [1,3])
+    const xs = inputData.as2D(1,148)
+    xs.print(true)
     const preds = model.predict(xs);
     return preds.dataSync();
   });

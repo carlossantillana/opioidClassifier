@@ -20,7 +20,7 @@
     "expo-camera": "^8.2.0",
     "expo-font": "~8.1.0",
     "expo-gl": "^8.1.0",
-    "jpeg-js": "^0.4.0",
+    "jpeg-js": "^0.4.4",
     "native-base": "2.13.8",
     "papaparse": "^5.2.0",
     "react": "~16.9.0",
